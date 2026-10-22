@@ -1,0 +1,17 @@
+[package]
+name = "flight-dynamics"
+description = "Equations of motion, environment, actuators, ground contact and sensors of the robotic airship"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+airship-model.workspace = true
+serde.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true
+
+[lints]
+workspace = true

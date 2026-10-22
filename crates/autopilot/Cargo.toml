@@ -1,0 +1,19 @@
+[package]
+name = "autopilot"
+description = "Guidance, flight-phase state machine, preflight checks and safety monitoring for the robotic airship"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+airship-model.workspace = true
+flight-dynamics.workspace = true
+control-algorithms.workspace = true
+serde.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true
+
+[lints]
+workspace = true

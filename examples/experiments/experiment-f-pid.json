@@ -1,0 +1,320 @@
+{
+  "name": "Experiment F - controller comparison",
+  "description": "Reference mission in scenario 4 (gusts, turbulence seed 42).",
+  "airship": {
+    "name": "RA-12 research blimp",
+    "length_m": 12.0,
+    "max_diameter_m": 3.0,
+    "hull_volume_m3": null,
+    "gondola_volume_m3": 0.3,
+    "total_mass_kg": 70.0,
+    "lifting_gas": "helium",
+    "cg_below_cv_m": 0.7,
+    "gear_height_m": 2.1,
+    "aero": {
+      "cd_axial": 0.08,
+      "cd_lateral": 0.9,
+      "cd_vertical": 0.9,
+      "fin_area_m2": 2.0,
+      "fin_lift_slope_per_rad": 2.5,
+      "fin_arm_m": 5.0,
+      "pitch_roll_damping_ratio": 0.35
+    },
+    "propulsion": {
+      "main_max_thrust_n": 60.0,
+      "main_reverse_ratio": 0.5,
+      "main_lateral_arm_m": 1.2,
+      "main_vertical_offset_m": 0.5,
+      "heave_max_thrust_n": 100.0,
+      "heave_reverse_ratio": 1.0,
+      "propeller_diameter_m": 0.6,
+      "response_time_s": 0.3,
+      "efficiency": 0.6,
+      "battery_capacity_wh": 1000.0,
+      "avionics_power_w": 25.0
+    },
+    "rudder": {
+      "max_deflection_deg": 25.0,
+      "max_rate_deg_s": 60.0,
+      "effectiveness_per_rad": 1.5
+    },
+    "limits": {
+      "max_climb_rate_m_s": 1.5,
+      "max_descent_rate_m_s": 1.2,
+      "max_airspeed_m_s": 10.0,
+      "max_turn_rate_deg_s": 10.0,
+      "max_pitch_deg": 20.0,
+      "max_roll_deg": 15.0
+    }
+  },
+  "environment": {
+    "atmosphere": {
+      "model": "isa",
+      "constant_density_kg_m3": 1.225,
+      "temperature_offset_k": 0.0
+    },
+    "ground_elevation_m": 120.0,
+    "takeoff_site": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "landing_site": {
+      "x": 400.0,
+      "y": -100.0
+    },
+    "landing_area": {
+      "heading_deg": 270.0,
+      "undershoot_m": 30.0,
+      "overrun_m": 30.0,
+      "half_width_m": 20.0
+    },
+    "initial_state": {
+      "position": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "altitude_agl_m": 0.0,
+      "velocity": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "heading_deg": 270.0,
+      "pitch_deg": 0.0,
+      "roll_deg": 0.0,
+      "moored": true
+    },
+    "wind": {
+      "speed_m_s": 3.0,
+      "from_direction_deg": 250.0,
+      "vertical_m_s": 0.0,
+      "shear_exponent": 0.0,
+      "shear_reference_height_m": 10.0,
+      "changes": [],
+      "gusts": [
+        {
+          "trigger": {
+            "kind": "at_time",
+            "time_s": 90.0
+          },
+          "duration_s": 12.0,
+          "speed_m_s": 5.0,
+          "from_direction_deg": 180.0,
+          "vertical_m_s": 0.5
+        },
+        {
+          "trigger": {
+            "kind": "distance_to_landing",
+            "distance_m": 120.0
+          },
+          "duration_s": 10.0,
+          "speed_m_s": 3.0,
+          "from_direction_deg": 320.0,
+          "vertical_m_s": -0.3
+        }
+      ],
+      "turbulence": {
+        "enabled": true,
+        "intensity_m_s": 0.7,
+        "vertical_ratio": 0.5,
+        "correlation_time_s": 4.0,
+        "seed": 42
+      }
+    },
+    "sensor_noise": {
+      "enabled": false,
+      "seed": 2,
+      "position_m": 0.5,
+      "altitude_m": 0.3,
+      "velocity_m_s": 0.1,
+      "heading_deg": 1.0,
+      "airspeed_m_s": 0.2
+    }
+  },
+  "flight_path": {
+    "name": "Reference mission",
+    "waypoints": [
+      {
+        "x_m": 150.0,
+        "y_m": 120.0,
+        "altitude_m": 40.0,
+        "heading_deg": null,
+        "speed_m_s": 5.0,
+        "tolerance_m": 15.0
+      },
+      {
+        "x_m": 450.0,
+        "y_m": 180.0,
+        "altitude_m": 40.0,
+        "heading_deg": null,
+        "speed_m_s": 5.0,
+        "tolerance_m": 15.0
+      },
+      {
+        "x_m": 720.0,
+        "y_m": 40.0,
+        "altitude_m": 30.0,
+        "heading_deg": null,
+        "speed_m_s": 4.5,
+        "tolerance_m": 15.0
+      }
+    ]
+  },
+  "autopilot": {
+    "target_altitude_m": 40.0,
+    "cruise_speed_m_s": 5.0,
+    "takeoff_climb_rate_m_s": 0.8,
+    "takeoff_heading_deg": null,
+    "trim_mass_bias_kg": 0.0,
+    "takeoff": {
+      "lift_margin_n": 12.0,
+      "thrust_ramp_n_s": 15.0,
+      "release_load_threshold_n": 6.0,
+      "preparation_timeout_s": 30.0,
+      "clearance_altitude_m": 4.0,
+      "initial_climb_altitude_m": 15.0,
+      "takeoff_timeout_s": 60.0,
+      "max_wind_m_s": 8.0,
+      "min_battery_soc": 0.3
+    },
+    "approach": {
+      "course_deg": null,
+      "glide_angle_deg": 8.0,
+      "altitude_m": 25.0,
+      "speed_m_s": 3.5,
+      "pregate_extension_m": 80.0,
+      "corridor_half_width_m": 15.0,
+      "corridor_altitude_tolerance_m": 6.0,
+      "max_course_error_deg": 35.0,
+      "deceleration_distance_m": 60.0
+    },
+    "landing": {
+      "flare_height_m": 3.0,
+      "flare_entry_radius_m": 6.0,
+      "flare_entry_max_speed_m_s": 1.2,
+      "touchdown_sink_rate_m_s": 0.3,
+      "landing_point_tolerance_m": 5.0,
+      "max_touchdown_vertical_speed_m_s": 0.8,
+      "max_touchdown_horizontal_speed_m_s": 1.0,
+      "decision_height_m": 1.5,
+      "hold_down_force_n": 30.0,
+      "settle_speed_m_s": 0.2,
+      "settle_time_s": 3.0,
+      "max_attempts": 3,
+      "max_wind_m_s": 8.0,
+      "max_cross_track_error_m": 12.0,
+      "max_altitude_error_m": 8.0
+    },
+    "transitions": {
+      "altitude_m": 2.0,
+      "vertical_speed_m_s": 0.4,
+      "hover_altitude_m": 2.0,
+      "hover_heading_deg": 10.0
+    },
+    "guidance": {
+      "lookahead_m": 30.0,
+      "hold_max_speed_m_s": 1.5,
+      "hover_deceleration_m_s2": 0.08,
+      "wind_filter_tau_s": 3.0
+    },
+    "control_limits": {
+      "surge": 1.0,
+      "heave": 1.0,
+      "yaw": 1.0
+    },
+    "safety": {
+      "critical_factor": 1.3,
+      "min_enroute_altitude_m": 10.0,
+      "saturation_warning_time_s": 8.0,
+      "battery_warning_soc": 0.25,
+      "battery_critical_soc": 0.15,
+      "go_around_on_critical": true
+    }
+  },
+  "controller": {
+    "kind": "cascaded_pid",
+    "common": {
+      "derivative_filter_tau_s": 0.2,
+      "heave_rate_limit_n_s": 400.0,
+      "surge_rate_limit_n_s": 400.0,
+      "yaw_moment_rate_limit_nm_s": 1000.0,
+      "drag_feedforward": true,
+      "max_reverse_airspeed_m_s": 1.5
+    },
+    "cascaded_pid": {
+      "altitude": {
+        "kp": 0.25,
+        "ki": 0.006,
+        "kd": 0.0
+      },
+      "vertical_speed": {
+        "kp": 125.0,
+        "ki": 46.0,
+        "kd": 0.0
+      },
+      "heading": {
+        "kp": 0.4,
+        "ki": 0.0,
+        "kd": 0.0
+      },
+      "yaw_rate": {
+        "kp": 1540.0,
+        "ki": 1230.0,
+        "kd": 0.0
+      },
+      "airspeed": {
+        "kp": 79.0,
+        "ki": 27.0,
+        "kd": 0.0
+      },
+      "position_gain_1_s": 0.2
+    },
+    "gain_scheduled": {
+      "damping_ratio": 0.9,
+      "outer_loop_ratio": 3.0,
+      "min_proportional_fraction": 0.25,
+      "bandwidths": {
+        "ground": {
+          "vertical_rad_s": 0.8,
+          "yaw_rad_s": 1.0,
+          "speed_rad_s": 0.5
+        },
+        "takeoff": {
+          "vertical_rad_s": 1.0,
+          "yaw_rad_s": 1.0,
+          "speed_rad_s": 0.6
+        },
+        "climb": {
+          "vertical_rad_s": 0.7,
+          "yaw_rad_s": 1.2,
+          "speed_rad_s": 0.6
+        },
+        "cruise": {
+          "vertical_rad_s": 0.6,
+          "yaw_rad_s": 1.2,
+          "speed_rad_s": 0.6
+        },
+        "approach": {
+          "vertical_rad_s": 0.8,
+          "yaw_rad_s": 1.2,
+          "speed_rad_s": 0.6
+        },
+        "landing": {
+          "vertical_rad_s": 1.2,
+          "yaw_rad_s": 1.4,
+          "speed_rad_s": 0.8
+        }
+      },
+      "altitude_integral_fraction": 0.1,
+      "position_gain_far_1_s": 0.12,
+      "position_gain_near_1_s": 0.35,
+      "position_schedule_distance_m": 40.0
+    }
+  },
+  "simulation": {
+    "duration_s": 900.0,
+    "dt_s": 0.01,
+    "control_rate_hz": 20.0,
+    "telemetry_rate_hz": 10.0
+  }
+}

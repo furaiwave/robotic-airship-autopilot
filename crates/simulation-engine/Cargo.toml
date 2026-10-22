@@ -1,0 +1,30 @@
+[package]
+name = "simulation-engine"
+description = "Fixed-step simulation lifecycle, telemetry, landing assessment, metrics and experiments for the robotic airship"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+airship-model.workspace = true
+flight-dynamics.workspace = true
+control-algorithms.workspace = true
+autopilot.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+criterion.workspace = true
+
+[[bin]]
+name = "airship-sim"
+path = "src/bin/airship-sim.rs"
+
+[[bench]]
+name = "simulation"
+harness = false
+
+[lints]
+workspace = true

@@ -1,0 +1,19 @@
+{
+  "name": "robotic-airship-autopilot",
+  "private": true,
+  "description": "Development and research of an autonomous take-off and landing autopilot for a robotic airship (simulation)",
+  "scripts": {
+    "setup": "pnpm --dir apps/web install && cargo build --release --workspace",
+    "dev": "node scripts/dev.mjs",
+    "build": "cargo build --release --workspace && pnpm --dir apps/web build",
+    "start": "cargo run --release -p api-server --bin airship-api -- --port 8080 --static-dir apps/web/dist",
+    "test": "cargo test --workspace --release && pnpm --dir apps/web test",
+    "test:rust": "cargo test --workspace --release",
+    "test:web": "pnpm --dir apps/web test",
+    "test:e2e": "node scripts/e2e.mjs",
+    "lint": "cargo clippy --workspace --all-targets -- -D warnings && pnpm --dir apps/web typecheck",
+    "experiments": "cargo run --release -p simulation-engine --bin airship-sim -- export-presets examples/experiments",
+    "dt-study": "cargo run --release -p simulation-engine --example dt_study",
+    "bench": "cargo bench -p control-algorithms -p simulation-engine"
+  }
+}

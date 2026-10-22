@@ -1,0 +1,16 @@
+[package]
+name = "airship-model"
+description = "Vehicle parameters, derived physical properties, atmosphere and shared math for the robotic airship simulator"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true
+
+[lints]
+workspace = true

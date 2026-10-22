@@ -1,0 +1,10 @@
+# Single container: Rust API + built web UI at http://localhost:8080
+services:
+  airship-lab:
+    build: .
+    image: robotic-airship-autopilot:latest
+    ports:
+      - "8080:8080"
+    environment:
+      RUST_LOG: info
+    restart: unless-stopped

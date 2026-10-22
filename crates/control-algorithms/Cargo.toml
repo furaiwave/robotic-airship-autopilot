@@ -1,0 +1,23 @@
+[package]
+name = "control-algorithms"
+description = "PID, gain scheduling, control allocation and the cascaded airship flight controllers"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+airship-model.workspace = true
+flight-dynamics.workspace = true
+serde.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true
+criterion.workspace = true
+
+[[bench]]
+name = "controllers"
+harness = false
+
+[lints]
+workspace = true

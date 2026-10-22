@@ -1,0 +1,10 @@
+/target
+node_modules/
+dist/
+coverage/
+*.log
+.vite/
+apps/web/test-results/
+results/
+.DS_Store
+.env
