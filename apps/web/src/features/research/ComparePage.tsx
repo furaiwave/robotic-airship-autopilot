@@ -12,6 +12,7 @@ import { Table, TBody, Td, Th, THead, Tr } from '@/components/ui/table'
 import { ChartCard } from '@/features/simulation/SimulationPage'
 import { comparisonMetricsToCsv } from '@/lib/export'
 import { fmt } from '@/lib/format'
+import { DISCLAIMER_UK, experimentUk, metricUk, runLabelUk } from '@/lib/i18n'
 import { downloadBlob, slug } from '@/lib/utils'
 import { useConfigStore } from '@/stores/configStore'
 import { useResearchStore } from '@/stores/researchStore'
@@ -34,17 +35,17 @@ export function ComparePage() {
   return (
     <div className="space-y-3">
       <PageHeader
-        title="Experiments and controller comparison"
-        description="Predefined, repeatable experiments A–G and side-by-side comparison. Runs execute to completion in the Rust engine (batch mode) with identical initial conditions, parameters and disturbance seeds; the engine verifies that only the controller differs."
+        title="Експерименти та порівняння регуляторів"
+        description="Готові відтворювані експерименти A–G і порівняння пліч-о-пліч. Прогони виконуються до кінця в Rust-рушії (пакетний режим) з однаковими початковими умовами, параметрами та зернами збурень; рушій перевіряє, що відрізняється лише регулятор."
         actions={
           <Button size="sm" onClick={() => void compareControllers(config).then(() => setFocus(null))} disabled={running}>
-            {running ? <Loader2 className="animate-spin" /> : <GitCompare />} Compare A vs B on current config
+            {running ? <Loader2 className="animate-spin" /> : <GitCompare />} Порівняти A і B на поточній конфігурації
           </Button>
         }
       />
       {error ? <ErrorBanner message={error} /> : null}
       <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-        {experiments.map((e) => (
+        {experiments.map(experimentUk).map((e) => (
           <Card key={e.id} className="flex flex-col">
             <CardHeader className="py-2">
               <div>
@@ -62,10 +63,10 @@ export function ComparePage() {
                   disabled={running}
                   onClick={() => {
                     setFocus(e.focus_metrics)
-                    void runExperiment(e.id, `Experiment ${e.id}: ${e.title}`)
+                    void runExperiment(e.id, `Експеримент ${e.id}: ${e.title}`)
                   }}
                 >
-                  <Play /> Run {e.runs.length > 1 ? `(${e.runs.length} runs)` : ''}
+                  <Play /> Запустити {e.runs.length > 1 ? `(${e.runs.length} прогони)` : ''}
                 </Button>
                 <Button
                   size="sm"
@@ -78,7 +79,7 @@ export function ComparePage() {
                     }
                   }}
                 >
-                  <Upload /> Load into workspace
+                  <Upload /> Завантажити в робочу зону
                 </Button>
               </div>
             </CardContent>
@@ -88,13 +89,13 @@ export function ComparePage() {
 
       {running ? (
         <div className="flex items-center gap-2 rounded-lg border border-border bg-surface p-4 text-sm text-muted-foreground">
-          <Loader2 className="size-4 animate-spin" /> Running {title} in the Rust engine…
+          <Loader2 className="size-4 animate-spin" /> Виконується «{title}» у Rust-рушії…
         </div>
       ) : report ? (
-        <ComparisonView report={report} title={title ?? 'Comparison'} focus={focus} />
+        <ComparisonView report={report} title={title ?? 'Порівняння'} focus={focus} />
       ) : (
-        <EmptyState title="No experiment results yet" icon={<FlaskConical />}>
-          Run an experiment or compare both controllers on the current configuration.
+        <EmptyState title="Результатів експериментів ще немає" icon={<FlaskConical />}>
+          Запустіть експеримент або порівняйте обидва регулятори на поточній конфігурації.
         </EmptyState>
       )}
     </div>
@@ -108,9 +109,9 @@ function ComparisonView({ report, title, focus }: { report: ComparisonReport; ti
   const merged = useMemo(() => mergeByTime(report), [report])
   const first = report.runs[0]
   if (!first || !config) return null
-  const metrics = first.results.metrics
+  const metrics = first.results.metrics.map(metricUk)
   const ordered = focus ? [...metrics.filter((m) => focus.includes(m.key)), ...metrics.filter((m) => !focus.includes(m.key))] : metrics
-  const series = (key: string) => report.runs.map((r, i) => ({ key: `${key}__${i}`, label: r.label, color: RUN_COLORS[i] ?? 'var(--series-5)' }))
+  const series = (key: string) => report.runs.map((r, i) => ({ key: `${key}__${i}`, label: runLabelUk(r.label), color: RUN_COLORS[i] ?? 'var(--series-5)' }))
 
   return (
     <div className="space-y-3">
@@ -119,44 +120,45 @@ function ComparisonView({ report, title, focus }: { report: ComparisonReport; ti
           <div>
             <CardTitle className="text-sm">{title}</CardTitle>
             <CardDescription>
-              {report.runs.length} run(s) · {report.identical_conditions ? 'identical initial conditions, parameters and seeds (only the controller differs)' : 'configurations differ beyond the controller'}
+              прогонів: {report.runs.length} ·{' '}
+              {report.identical_conditions ? 'однакові початкові умови, параметри та зерна (відрізняється лише регулятор)' : 'конфігурації відрізняються не лише регулятором'}
             </CardDescription>
           </div>
           <div className="flex flex-wrap gap-1.5">
             {report.identical_conditions ? (
               <Badge variant="good">
-                <CheckCircle2 /> identical conditions
+                <CheckCircle2 /> однакові умови
               </Badge>
             ) : (
               <Badge variant="warning">
-                <AlertTriangle /> {report.differences.length} differing field(s)
+                <AlertTriangle /> відмінних полів: {report.differences.length}
               </Badge>
             )}
             <Button size="sm" variant="secondary" onClick={() => downloadBlob(new Blob([comparisonMetricsToCsv(report)], { type: 'text/csv' }), `${slug(title)}-metrics.csv`)}>
-              <Download /> Metrics CSV
+              <Download /> Показники CSV
             </Button>
             <Button
               size="sm"
               variant="secondary"
               onClick={() => downloadBlob(new Blob([JSON.stringify({ format: 'robotic-airship-comparison/v1', title, ...report }, null, 1)], { type: 'application/json' }), `${slug(title)}.json`)}
             >
-              <FileJson /> Comparison JSON
+              <FileJson /> Порівняння JSON
             </Button>
           </div>
         </CardHeader>
         {!report.identical_conditions ? (
           <CardContent className="text-xs text-muted-foreground">
-            Differing fields: <span className="font-mono">{report.differences.slice(0, 12).join(', ')}</span>
+            Відмінні поля: <span className="font-mono">{report.differences.slice(0, 12).join(', ')}</span>
           </CardContent>
         ) : null}
       </Card>
 
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
-          <TabsTrigger value="overview">Comparison</TabsTrigger>
+          <TabsTrigger value="overview">Порівняння</TabsTrigger>
           {report.runs.map((r, i) => (
             <TabsTrigger key={i} value={`run-${i}`}>
-              {r.label}
+              {runLabelUk(r.label)}
             </TabsTrigger>
           ))}
         </TabsList>
@@ -164,20 +166,20 @@ function ComparisonView({ report, title, focus }: { report: ComparisonReport; ti
           <Card>
             <CardHeader>
               <div>
-                <CardTitle>Metrics</CardTitle>
-                <CardDescription>Values as computed; no ranking is implied. Experiment focus metrics are listed first.</CardDescription>
+                <CardTitle>Показники</CardTitle>
+                <CardDescription>Значення наведено як обчислено; ранжування не передбачається. Ключові показники експерименту — першими.</CardDescription>
               </div>
             </CardHeader>
             <CardContent className="p-0">
               <Table>
                 <THead>
                   <Tr>
-                    <Th>Metric</Th>
-                    <Th>Unit</Th>
+                    <Th>Показник</Th>
+                    <Th>Одиниця</Th>
                     {report.runs.map((r, i) => (
                       <Th key={i} className="text-right">
                         <span className="mr-1 inline-block h-2 w-2 rounded-full" style={{ background: RUN_COLORS[i] }} />
-                        {r.label}
+                        {runLabelUk(r.label)}
                       </Th>
                     ))}
                     {report.runs.length === 2 ? <Th className="text-right">Δ (2 − 1)</Th> : null}
@@ -185,7 +187,7 @@ function ComparisonView({ report, title, focus }: { report: ComparisonReport; ti
                 </THead>
                 <TBody>
                   <Tr>
-                    <Td className="font-medium">Landing classification</Td>
+                    <Td className="font-medium">Класифікація посадки</Td>
                     <Td />
                     {report.runs.map((r, i) => (
                       <Td key={i} className="text-right">
@@ -219,7 +221,7 @@ function ComparisonView({ report, title, focus }: { report: ComparisonReport; ti
           <div className="grid gap-3 xl:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>Trajectories</CardTitle>
+                <CardTitle>Траєкторії</CardTitle>
               </CardHeader>
               <CardContent>
                 <TopView
@@ -228,30 +230,30 @@ function ComparisonView({ report, title, focus }: { report: ComparisonReport; ti
                   overlays={report.runs.map((r, i) => ({ label: r.label, color: RUN_COLORS[i] ?? 'var(--series-5)', samples: r.telemetry }))}
                   height={380}
                 />
-                <p className="mt-1.5 text-[11px] text-muted-foreground">Geometry drawn from the current workspace configuration; trajectories from each run.</p>
+                <p className="mt-1.5 text-[11px] text-muted-foreground">Геометрію побудовано з поточної конфігурації робочої зони; траєкторії — з кожного прогону.</p>
               </CardContent>
             </Card>
             <div className="grid gap-3">
-              <ChartCard title="Altitude above ground [m]">
-                <TimeSeriesChart data={merged} unit="m" height={160} series={series('altitude_agl_m')} />
+              <ChartCard title="Висота над землею [м]">
+                <TimeSeriesChart data={merged} unit="м" height={160} series={series('altitude_agl_m')} />
               </ChartCard>
-              <ChartCard title="Cross-track error [m]">
-                <TimeSeriesChart data={merged} unit="m" height={160} series={series('err_cross_track_m')} />
+              <ChartCard title="Бокове відхилення [м]">
+                <TimeSeriesChart data={merged} unit="м" height={160} series={series('err_cross_track_m')} />
               </ChartCard>
             </div>
           </div>
           <div className="grid gap-3 lg:grid-cols-3">
-            <ChartCard title="Vertical speed [m/s]">
-              <TimeSeriesChart data={merged} unit="m/s" height={160} series={series('vz_m_s')} />
+            <ChartCard title="Вертикальна швидкість [м/с]">
+              <TimeSeriesChart data={merged} unit="м/с" height={160} series={series('vz_m_s')} />
             </ChartCard>
-            <ChartCard title="Heave usage (normalised)">
+            <ChartCard title="Використання вертикальної тяги (нормоване)">
               <TimeSeriesChart data={merged} unit="" height={160} yDomain={[0, 1]} series={series('u_heave')} />
             </ChartCard>
-            <ChartCard title="Yaw usage (normalised)">
+            <ChartCard title="Використання моменту рискання (нормоване)">
               <TimeSeriesChart data={merged} unit="" height={160} yDomain={[0, 1]} series={series('u_yaw')} />
             </ChartCard>
           </div>
-          <p className="text-[11px] text-subtle-foreground">{report.disclaimer}</p>
+          <p className="text-[11px] text-subtle-foreground">{DISCLAIMER_UK}</p>
         </TabsContent>
         {report.runs.map((r, i) => (
           <TabsContent key={i} value={`run-${i}`}>

@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url'
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const procs = [
   spawn('cargo run --release -p api-server --bin airship-api -- --port 8080', { cwd: root, stdio: 'inherit', shell: true }),
-  spawn('pnpm run dev', { cwd: join(root, 'apps', 'web'), stdio: 'inherit', shell: true }),
+  spawn('npm run dev', { cwd: join(root, 'apps', 'web'), stdio: 'inherit', shell: true }),
 ]
 const stop = () => {
   for (const p of procs) p.kill()

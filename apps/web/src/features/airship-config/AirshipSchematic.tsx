@@ -18,7 +18,7 @@ export function AirshipSchematic({ p }: { p: AirshipParams }) {
   const thrustY = cgY + p.propulsion.main_vertical_offset_m * scale
   const dim = 'var(--ink-muted)'
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label="Airship schematic with dimensions">
+    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label="Схема дирижабля з розмірами">
       <defs>
         <marker id="arr" viewBox="0 0 6 6" refX="3" refY="3" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
           <path d="M0,0 L6,3 L0,6 z" fill={dim} />
@@ -39,23 +39,23 @@ export function AirshipSchematic({ p }: { p: AirshipParams }) {
       {/* CV and CG */}
       <circle cx={cx} cy={cy} r={3.5} fill="var(--foreground)" />
       <text x={cx + 6} y={cy - 4} fontSize={12} fill="var(--foreground)">
-        CV
+        ЦО
       </text>
       <circle cx={cx} cy={cgY} r={3.5} fill="none" stroke="var(--foreground)" strokeWidth={1.5} />
       <text x={cx + 6} y={cgY + 4} fontSize={12} fill="var(--foreground)">
-        CG
+        ЦМ
       </text>
       {/* dimensions */}
       <line x1={cx - rx} x2={cx + rx} y1={22} y2={22} stroke={dim} markerStart="url(#arr)" markerEnd="url(#arr)" />
-      <text x={cx} y={15} textAnchor="middle" fontSize={13} fill="var(--muted-foreground)">{`L = ${fmt(L, 1)} m`}</text>
+      <text x={cx} y={15} textAnchor="middle" fontSize={13} fill="var(--muted-foreground)">{`L = ${fmt(L, 1)} м`}</text>
       <line x1={cx + rx + 14} x2={cx + rx + 14} y1={cy - ry} y2={cy + ry} stroke={dim} markerStart="url(#arr)" markerEnd="url(#arr)" />
-      <text x={cx + rx + 18} y={cy + 3} fontSize={13} fill="var(--muted-foreground)">{`D = ${fmt(D, 1)} m`}</text>
+      <text x={cx + rx + 18} y={cy + 3} fontSize={13} fill="var(--muted-foreground)">{`D = ${fmt(D, 1)} м`}</text>
       <line x1={cx - rx - 12} x2={cx - rx - 12} y1={cy} y2={gearY} stroke={dim} markerStart="url(#arr)" markerEnd="url(#arr)" />
-      <text x={cx - rx - 16} y={(cy + gearY) / 2 + 3} textAnchor="end" fontSize={13} fill="var(--muted-foreground)">{`gear ${fmt(p.gear_height_m, 1)} m`}</text>
-      <text x={finX - 20} y={cy + ry * 1.15 + 14} textAnchor="middle" fontSize={12} fill="var(--muted-foreground)">{`fin arm ${fmt(p.aero.fin_arm_m, 1)} m`}</text>
-      <text x={cx + 56} y={thrustY + 4} fontSize={12} fill="var(--muted-foreground)">main thrusters ×2</text>
-      <text x={cx - 40} y={cgY - 16} textAnchor="end" fontSize={12} fill="var(--muted-foreground)">heave</text>
-      <text x={cx - 6} y={cgY + 16} textAnchor="end" fontSize={12} fill="var(--muted-foreground)">{`BG ${fmt(p.cg_below_cv_m, 2)} m`}</text>
+      <text x={cx - rx - 16} y={(cy + gearY) / 2 + 3} textAnchor="end" fontSize={13} fill="var(--muted-foreground)">{`шасі ${fmt(p.gear_height_m, 1)} м`}</text>
+      <text x={finX - 20} y={cy + ry * 1.15 + 14} textAnchor="middle" fontSize={12} fill="var(--muted-foreground)">{`плече оперення ${fmt(p.aero.fin_arm_m, 1)} м`}</text>
+      <text x={cx + 56} y={thrustY + 4} fontSize={12} fill="var(--muted-foreground)">маршові рушії ×2</text>
+      <text x={cx - 40} y={cgY - 16} textAnchor="end" fontSize={12} fill="var(--muted-foreground)">вертикальний</text>
+      <text x={cx - 6} y={cgY + 16} textAnchor="end" fontSize={12} fill="var(--muted-foreground)">{`BG ${fmt(p.cg_below_cv_m, 2)} м`}</text>
     </svg>
   )
 }

@@ -33,6 +33,6 @@ if (!up) {
   console.error('API did not start')
   process.exit(1)
 }
-const r = spawnSync('pnpm run test:e2e', { cwd: join(root, 'apps', 'web'), stdio: 'inherit', shell: true, env: { ...process.env, E2E_API_URL: url } })
+const r = spawnSync('npm run test:e2e', { cwd: join(root, 'apps', 'web'), stdio: 'inherit', shell: true, env: { ...process.env, E2E_API_URL: url } })
 server.kill()
 process.exit(r.status ?? 1)

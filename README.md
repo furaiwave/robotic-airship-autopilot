@@ -20,13 +20,13 @@ compare controllers → export CSV/JSON.
 
 ## Quick start
 
-Prerequisites: Rust ≥ 1.85 (developed with 1.99), Node.js ≥ 20 (developed with 24),
-pnpm ≥ 9.
+Prerequisites: Rust ≥ 1.85 (developed with 1.99), Node.js ≥ 20 with npm (developed with
+Node 24 / npm 11).
 
 ```bash
-pnpm --dir apps/web install          # frontend dependencies
-pnpm run build                       # cargo build --release + vite build
-pnpm run start                       # API + built UI on http://127.0.0.1:8080
+npm --prefix apps/web install        # frontend dependencies
+npm run build                        # cargo build --release + vite build
+npm start                            # API + built UI on http://127.0.0.1:8080
 ```
 
 Development mode, with hot reload on http://localhost:5173 and `/api` proxied to :8080:
@@ -51,8 +51,8 @@ environment): `docker compose up --build`, then open http://localhost:8080.
 ```bash
 cargo test --workspace --release                       # 126 Rust tests
 cargo clippy --workspace --all-targets -- -D warnings
-pnpm --dir apps/web test                               # 33 Vitest / RTL tests
-pnpm --dir apps/web typecheck
+npm --prefix apps/web test                             # 33 Vitest / RTL tests
+npm --prefix apps/web run typecheck
 node scripts/e2e.mjs                                   # frontend client ↔ live Rust API
 ```
 

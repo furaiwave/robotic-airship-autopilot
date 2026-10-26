@@ -22,7 +22,7 @@ describe('configuration validation (Zod)', () => {
     expect(airshipSchema.safeParse({ ...a, length_m: -1 }).success).toBe(false)
     const r = airshipSchema.safeParse({ ...a, length_m: 2, max_diameter_m: 3 })
     expect(r.success).toBe(false)
-    expect(r.error?.issues.some((i) => i.message.includes('smaller than the diameter'))).toBe(true)
+    expect(r.error?.issues.some((i) => i.message.includes('меншою за діаметр'))).toBe(true)
     expect(airshipSchema.safeParse({ ...a, aero: { ...a.aero, cd_axial: Number.NaN } }).success).toBe(false)
   })
 
@@ -102,10 +102,10 @@ describe('exports', () => {
   it('writes a metric-by-run comparison CSV', () => {
     const report = comparisonReport()
     const csv = comparisonMetricsToCsv(report)
-    expect(csv).toContain('Cascaded PID (A)')
-    expect(csv).toContain('Gain-scheduled PID (B)')
-    expect(csv).toContain('Landing-point error')
-    expect(csv.startsWith('# Simulated data')).toBe(true)
+    expect(csv).toContain('Каскадний ПІД (A)')
+    expect(csv).toContain('ПІД з плануванням коефіцієнтів (B)')
+    expect(csv).toContain('Похибка точки посадки')
+    expect(csv.startsWith('# Змодельовані дані')).toBe(true)
     expect(metricValue(report.runs[0]!.results.metrics, 'landing_attempts')).toBe(1)
   })
 })

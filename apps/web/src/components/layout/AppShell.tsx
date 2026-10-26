@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { PhaseBadge } from '@/components/common/Display'
 import { Button } from '@/components/ui/button'
 import { Tooltip } from '@/components/ui/overlays'
+import { runStateUk } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 import { api } from '@/services/api'
 import { useConfigStore } from '@/stores/configStore'
@@ -12,14 +13,14 @@ import { useSimulationStore } from '@/stores/simulationStore'
 import { type PageId, useUiStore } from '@/stores/uiStore'
 
 const NAV: { id: PageId; label: string; icon: React.ReactNode; group: string }[] = [
-  { id: 'dashboard', label: 'Flight operations', icon: <Gauge />, group: 'Operate' },
-  { id: 'simulation', label: 'Simulation workspace', icon: <Activity />, group: 'Operate' },
-  { id: 'airship', label: 'Airship', icon: <Plane />, group: 'Configure' },
-  { id: 'environment', label: 'Environment', icon: <Cloud />, group: 'Configure' },
-  { id: 'flight-path', label: 'Flight path', icon: <Route />, group: 'Configure' },
-  { id: 'autopilot', label: 'Autopilot', icon: <Cpu />, group: 'Configure' },
-  { id: 'results', label: 'Results', icon: <BarChart3 />, group: 'Research' },
-  { id: 'compare', label: 'Experiments & comparison', icon: <GitCompare />, group: 'Research' },
+  { id: 'dashboard', label: 'Керування польотом', icon: <Gauge />, group: 'Робота' },
+  { id: 'simulation', label: 'Робоча зона моделювання', icon: <Activity />, group: 'Робота' },
+  { id: 'airship', label: 'Дирижабль', icon: <Plane />, group: 'Налаштування' },
+  { id: 'environment', label: 'Середовище', icon: <Cloud />, group: 'Налаштування' },
+  { id: 'flight-path', label: 'Маршрут польоту', icon: <Route />, group: 'Налаштування' },
+  { id: 'autopilot', label: 'Автопілот', icon: <Cpu />, group: 'Налаштування' },
+  { id: 'results', label: 'Результати', icon: <BarChart3 />, group: 'Дослідження' },
+  { id: 'compare', label: 'Експерименти й порівняння', icon: <GitCompare />, group: 'Дослідження' },
 ]
 
 function useBackendHealth() {
@@ -60,11 +61,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <Plane className="size-3.5" />
           </div>
           <div className="leading-tight">
-            <div className="text-[13px] font-semibold">Airship Autopilot Lab</div>
-            <div className="text-[10px] text-subtle-foreground">take-off & landing research</div>
+            <div className="text-[13px] font-semibold">Автопілот дирижабля</div>
+            <div className="text-[10px] text-subtle-foreground">лабораторія зльоту й посадки</div>
           </div>
         </div>
-        <nav className="flex-1 overflow-y-auto p-2" aria-label="Main">
+        <nav className="flex-1 overflow-y-auto p-2" aria-label="Головне меню">
           {groups.map((g) => (
             <div key={g} className="mb-3">
               <div className="px-2 pb-1 text-[10px] font-medium tracking-wider text-subtle-foreground uppercase">{g}</div>
@@ -87,14 +88,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
         <div className="border-t border-border p-3 text-[10px] leading-snug text-subtle-foreground">
-          Simulation software for academic research. Not certified and not suitable for controlling a real aircraft.
+          Програмне забезпечення для академічного моделювання. Не сертифіковане й не придатне для керування реальним літальним апаратом.
         </div>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex h-11 shrink-0 items-center gap-3 border-b border-border bg-surface px-4">
           <select
-            aria-label="Page"
+            aria-label="Сторінка"
             className="h-7 rounded-md border border-input bg-background px-2 text-xs md:hidden"
             value={page}
             onChange={(e) => setPage(e.target.value as PageId)}
@@ -110,11 +111,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               className={cn('inline-block size-2 rounded-full', backend === null ? 'bg-subtle-foreground' : backend ? 'bg-good' : 'bg-critical')}
               aria-hidden
             />
-            <span className="text-muted-foreground">{backend === null ? 'Connecting…' : backend ? 'Rust engine online' : 'Engine offline'}</span>
+            <span className="text-muted-foreground">{backend === null ? 'Підключення…' : backend ? 'Rust-рушій на зв’язку' : 'Рушій недоступний'}</span>
           </div>
           {errors > 0 ? (
             <button onClick={() => setPage('airship')} className="text-xs text-critical hover:underline">
-              {errors} configuration error{errors === 1 ? '' : 's'}
+              помилок конфігурації: {errors}
             </button>
           ) : null}
           <div className="ml-auto flex items-center gap-3">
@@ -122,11 +123,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <div className="hidden items-center gap-2 text-xs sm:flex">
                 <span className="max-w-48 truncate text-muted-foreground">{session.name}</span>
                 <PhaseBadge phase={session.phase} />
-                <span className="tabular text-muted-foreground">{session.state}</span>
+                <span className="tabular text-muted-foreground">{runStateUk(session.state)}</span>
               </div>
             ) : null}
-            <Tooltip content={theme === 'dark' ? 'Light theme' : 'Dark theme'}>
-              <Button variant="ghost" size="icon-sm" onClick={toggleTheme} aria-label="Toggle theme">
+            <Tooltip content={theme === 'dark' ? 'Світла тема' : 'Темна тема'}>
+              <Button variant="ghost" size="icon-sm" onClick={toggleTheme} aria-label="Перемкнути тему">
                 {theme === 'dark' ? <Sun /> : <Moon />}
               </Button>
             </Tooltip>

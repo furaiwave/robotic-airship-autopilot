@@ -24,7 +24,7 @@ interface Props<T> {
 /** Time-series line chart with crosshair tooltip; one y-axis only. */
 export function TimeSeriesChart<T extends object>({ data, series, unit, height = 180, xKey = 't_s', markers = [], yDomain, digits = 2 }: Props<T>) {
   return (
-    <div style={{ height }} className="w-full" role="img" aria-label={`${series.map((s) => s.label).join(', ')} [${unit}] versus time`}>
+    <div style={{ height }} className="w-full" role="img" aria-label={`${series.map((s) => s.label).join(', ')} [${unit}] залежно від часу`}>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 6, right: 12, bottom: 0, left: 0 }}>
           <CartesianGrid vertical={false} strokeWidth={1} />
@@ -35,7 +35,7 @@ export function TimeSeriesChart<T extends object>({ data, series, unit, height =
             tickFormatter={(v: number) => `${Math.round(v)}`}
             tickLine={false}
             minTickGap={28}
-            unit=" s"
+            unit=" с"
           />
           <YAxis width={52} tickLine={false} axisLine={false} domain={yDomain ?? ['auto', 'auto']} tickFormatter={(v: number) => fmt(v, Math.abs(v) < 10 ? 1 : 0)} />
           <Tooltip
@@ -44,7 +44,7 @@ export function TimeSeriesChart<T extends object>({ data, series, unit, height =
             contentStyle={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 6, fontSize: 11, padding: '6px 8px' }}
             labelStyle={{ color: 'var(--muted-foreground)', marginBottom: 2 }}
             itemStyle={{ color: 'var(--foreground)', padding: 0 }}
-            labelFormatter={(v) => `t = ${fmt(Number(v), 1)} s`}
+            labelFormatter={(v) => `t = ${fmt(Number(v), 1)} с`}
             formatter={(v) => [`${fmt(Number(v), digits)} ${unit}`]}
           />
           {series.length > 1 ? <Legend iconType="plainline" height={18} wrapperStyle={{ fontSize: 11 }} /> : null}

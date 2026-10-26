@@ -43,13 +43,13 @@ export function RoleLegend() {
   return (
     <div className="flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
       <span className="flex items-center gap-1">
-        <span className="inline-block h-2 w-0.5 rounded-full bg-series-1" /> simulated state
+        <span className="inline-block h-2 w-0.5 rounded-full bg-series-1" /> модельований стан
       </span>
       <span className="flex items-center gap-1">
-        <span className="inline-block h-2 w-0.5 rounded-full bg-subtle-foreground" /> target / reference
+        <span className="inline-block h-2 w-0.5 rounded-full bg-subtle-foreground" /> завдання / еталон
       </span>
       <span className="flex items-center gap-1">
-        <span className="inline-block h-2 w-0.5 rounded-full bg-series-2" /> control command
+        <span className="inline-block h-2 w-0.5 rounded-full bg-series-2" /> керувальна команда
       </span>
     </div>
   )
@@ -77,10 +77,10 @@ export function PhaseBadge({ phase, className }: { phase: FlightPhase; className
 
 export function SeverityBadge({ severity }: { severity: SafetySeverity }) {
   const map = {
-    info: { v: 'info' as const, icon: <Info />, label: 'Info' },
-    warning: { v: 'warning' as const, icon: <AlertTriangle />, label: 'Warning' },
-    critical: { v: 'serious' as const, icon: <AlertOctagon />, label: 'Critical' },
-    fatal: { v: 'critical' as const, icon: <XCircle />, label: 'Fatal' },
+    info: { v: 'info' as const, icon: <Info />, label: 'Інфо' },
+    warning: { v: 'warning' as const, icon: <AlertTriangle />, label: 'Попередження' },
+    critical: { v: 'serious' as const, icon: <AlertOctagon />, label: 'Критична' },
+    fatal: { v: 'critical' as const, icon: <XCircle />, label: 'Фатальна' },
   }[severity]
   return (
     <Badge variant={map.v}>
@@ -94,18 +94,18 @@ export function LandingBadge({ c }: { c: LandingClass }) {
   if (c === 'successful')
     return (
       <Badge variant="good">
-        <CheckCircle2 /> Successful landing
+        <CheckCircle2 /> Успішна посадка
       </Badge>
     )
   if (c === 'unsuccessful')
     return (
       <Badge variant="critical">
-        <XCircle /> Unsuccessful landing
+        <XCircle /> Неуспішна посадка
       </Badge>
     )
   return (
     <Badge variant="outline">
-      <Info /> No landing attempted
+      <Info /> Посадку не виконували
     </Badge>
   )
 }
@@ -142,7 +142,7 @@ export function ErrorBanner({ message, onDismiss, details }: { message: string; 
         </div>
         {onDismiss ? (
           <button className="text-muted-foreground hover:text-foreground" onClick={onDismiss}>
-            Dismiss
+            Закрити
           </button>
         ) : null}
       </div>

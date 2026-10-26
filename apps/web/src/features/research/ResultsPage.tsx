@@ -28,21 +28,21 @@ export function ResultsPage() {
   return (
     <div>
       <PageHeader
-        title="Research results"
-        description="Metrics, landing classification, phase timeline and time series of the current simulation session. All values are simulated data."
+        title="Результати досліджень"
+        description="Показники, класифікація посадки, часова діаграма фаз і часові ряди поточного сеансу моделювання. Усі значення є змодельованими даними."
         actions={
           session ? (
             <>
               {session.state !== 'finished' ? (
                 <Button size="sm" variant="secondary" onClick={() => void loadPartial()}>
-                  <RefreshCw /> Interim results
+                  <RefreshCw /> Проміжні результати
                 </Button>
               ) : null}
               <Button size="sm" variant="secondary" onClick={() => void exportCsv()}>
-                <Download /> Telemetry CSV
+                <Download /> Телеметрія CSV
               </Button>
               <Button size="sm" variant="secondary" onClick={() => void exportJson()}>
-                <FileJson /> Experiment JSON
+                <FileJson /> Експеримент JSON
               </Button>
             </>
           ) : null
@@ -51,11 +51,11 @@ export function ResultsPage() {
       {results ? (
         <ResultsView report={results} telemetry={telemetry} />
       ) : (
-        <EmptyState title={session ? 'Simulation still running' : 'No results yet'} icon={<BarChart3 />}>
-          {session ? 'Results are computed by the engine when the run finishes; interim results can be requested at any time.' : 'Run a simulation from the workspace, or run a predefined experiment.'}
+        <EmptyState title={session ? 'Моделювання ще триває' : 'Результатів ще немає'} icon={<BarChart3 />}>
+          {session ? 'Рушій обчислює результати після завершення прогону; проміжні результати можна запросити будь-коли.' : 'Запустіть моделювання в робочій зоні або виконайте готовий експеримент.'}
           <div className="mt-3">
             <Button size="sm" onClick={() => setPage(session ? 'simulation' : 'compare')}>
-              {session ? 'Open workspace' : 'Open experiments'}
+              {session ? 'Відкрити робочу зону' : 'Відкрити експерименти'}
             </Button>
           </div>
         </EmptyState>

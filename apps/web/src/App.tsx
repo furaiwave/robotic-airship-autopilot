@@ -57,12 +57,12 @@ export default function App() {
           <div className="mx-auto mt-16 max-w-lg">
             {error ? (
               <>
-                <ErrorBanner message={`${error}. Start the Rust API with "cargo run -p api-server --release" and retry.`} />
-                <Button onClick={() => void load()}>Retry</Button>
+                <ErrorBanner message={`${error}. Запустіть Rust API командою «cargo run -p api-server --release» і повторіть спробу.`} />
+                <Button onClick={() => void load()}>Повторити</Button>
               </>
             ) : (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Loader2 className="size-4 animate-spin" /> {loading ? 'Loading configuration from the simulation engine…' : 'Starting…'}
+                <Loader2 className="size-4 animate-spin" /> {loading ? 'Завантаження конфігурації з рушія моделювання…' : 'Запуск…'}
               </div>
             )}
           </div>

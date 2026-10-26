@@ -95,12 +95,12 @@ function NumberField({ spec, form, serverIssue }: { spec: FieldSpec; form: Retur
         </Label>
         {spec.kind === 'estimate' ? (
           <Badge variant="outline" className="px-1 py-0 text-[10px]">
-            est.
+            оц.
           </Badge>
         ) : null}
         {spec.help ? (
           <Tooltip content={spec.help}>
-            <button type="button" className="text-subtle-foreground hover:text-foreground" aria-label={`About ${spec.label}`}>
+            <button type="button" className="text-subtle-foreground hover:text-foreground" aria-label={`Пояснення: ${spec.label}`}>
               <Info className="size-3" />
             </button>
           </Tooltip>
@@ -110,7 +110,7 @@ function NumberField({ spec, form, serverIssue }: { spec: FieldSpec; form: Retur
         id={id}
         type="number"
         step={spec.step ?? 'any'}
-        placeholder={spec.nullable ? 'auto' : undefined}
+        placeholder={spec.nullable ? 'авто' : undefined}
         aria-invalid={Boolean(error) || (serverIssue?.severity === 'error')}
         {...form.register(spec.name, {
           setValueAs: (v: unknown) => {

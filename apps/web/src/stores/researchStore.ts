@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 
+import { CONTROLLER_LABEL } from '@/lib/format'
 import { api, ApiError } from '@/services/api'
 import type { ComparisonReport, ControllerKind, SimulationConfig } from '@/types/api'
 
@@ -32,10 +33,10 @@ export const useResearchStore = create<ResearchState>((set) => {
     running: false,
     error: null,
     compareControllers: (config) =>
-      run(`${config.name}: controller comparison`, () =>
+      run(`${config.name}: порівняння регуляторів`, () =>
         api.compare([
-          { label: 'Cascaded PID (A)', config: withController(config, 'cascaded_pid') },
-          { label: 'Gain-scheduled PID (B)', config: withController(config, 'gain_scheduled') },
+          { label: CONTROLLER_LABEL.cascaded_pid, config: withController(config, 'cascaded_pid') },
+          { label: CONTROLLER_LABEL.gain_scheduled, config: withController(config, 'gain_scheduled') },
         ]),
       ),
     runExperiment: (id, title) => run(title, () => api.runPreset(id)),

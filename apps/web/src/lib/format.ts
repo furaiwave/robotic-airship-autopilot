@@ -18,20 +18,20 @@ export function fmtTime(s: number | null | undefined): string {
 }
 
 export const PHASE_LABEL: Record<FlightPhase, string> = {
-  preflight: 'Preflight checks',
-  takeoff_preparation: 'Take-off preparation',
-  takeoff: 'Take-off',
-  initial_climb: 'Initial climb',
-  climb: 'Climb',
-  cruise: 'En-route',
-  approach: 'Approach',
-  descent: 'Descent',
-  flare: 'Flare',
-  touchdown: 'Touchdown',
-  post_landing: 'Post-landing',
-  landed: 'Landed',
-  go_around: 'Go-around',
-  aborted: 'Aborted',
+  preflight: 'Передпольотні перевірки',
+  takeoff_preparation: 'Підготовка до зльоту',
+  takeoff: 'Зліт',
+  initial_climb: 'Початковий набір',
+  climb: 'Набір висоти',
+  cruise: 'Політ за маршрутом',
+  approach: 'Захід на посадку',
+  descent: 'Зниження по глісаді',
+  flare: 'Вирівнювання',
+  touchdown: 'Торкання',
+  post_landing: 'Стабілізація після посадки',
+  landed: 'Посадку завершено',
+  go_around: 'Відхід на друге коло',
+  aborted: 'Перервано',
 }
 
 export const PHASE_ORDER: FlightPhase[] = [
@@ -79,15 +79,20 @@ export function phaseTone(p: FlightPhase): 'ground' | 'climb' | 'cruise' | 'land
 }
 
 export const LANDING_LABEL: Record<LandingClass, string> = {
-  successful: 'Successful landing',
-  unsuccessful: 'Unsuccessful landing',
-  not_attempted: 'No landing attempted',
+  successful: 'Успішна посадка',
+  unsuccessful: 'Неуспішна посадка',
+  not_attempted: 'Посадку не виконували',
 }
 
 export const SEVERITY_ORDER: Record<SafetySeverity, number> = { info: 0, warning: 1, critical: 2, fatal: 3 }
 
+export const CONTROLLER_LABEL = {
+  cascaded_pid: 'Каскадний ПІД (A)',
+  gain_scheduled: 'ПІД з плануванням коефіцієнтів (B)',
+} as const
+
 export function controllerLabel(k: string): string {
-  return k === 'gain_scheduled' ? 'Gain-scheduled PID (B)' : 'Cascaded PID (A)'
+  return k === 'gain_scheduled' ? CONTROLLER_LABEL.gain_scheduled : CONTROLLER_LABEL.cascaded_pid
 }
 
 /**

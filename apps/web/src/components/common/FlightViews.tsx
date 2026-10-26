@@ -60,7 +60,7 @@ function AirshipGlyph({ x, y, rotationDeg, size = 26, color = 'var(--series-1)' 
   const l = size
   const d = size * 0.32
   return (
-    <g transform={`translate(${x} ${y}) rotate(${rotationDeg})`} aria-label="airship">
+    <g transform={`translate(${x} ${y}) rotate(${rotationDeg})`} aria-label="дирижабль">
       <path d={`M ${-l * 0.45} 0 L ${-l * 0.62} ${-d * 0.9} L ${-l * 0.5} 0 L ${-l * 0.62} ${d * 0.9} Z`} fill={color} opacity={0.85} />
       <ellipse cx={0} cy={0} rx={l / 2} ry={d / 2} fill={color} stroke="var(--surface)" strokeWidth={1.5} />
       <circle cx={l * 0.32} cy={0} r={1.6} fill="var(--surface)" />
@@ -156,7 +156,7 @@ export function TopView({ config, approach, trajectory = [], current, overlays =
       className="w-full rounded-md border border-border bg-surface select-none"
       style={{ height }}
       role="img"
-      aria-label="Top-down view of the mission and trajectory"
+      aria-label="Вигляд згори: місія та траєкторія"
       onClick={(e) => {
         if (!editable || drag !== null) return
         if ((e.target as Element).getAttribute('data-wp') !== null) return
@@ -187,7 +187,7 @@ export function TopView({ config, approach, trajectory = [], current, overlays =
                 <line x1={p.x - 5} x2={p.x + 5} y1={p.y - 5} y2={p.y + 5} stroke="var(--phase-landing)" strokeWidth={1.5} />
                 <line x1={p.x - 5} x2={p.x + 5} y1={p.y + 5} y2={p.y - 5} stroke="var(--phase-landing)" strokeWidth={1.5} />
                 <text x={p.x + 7} y={p.y - 6} fontSize={13} fill="var(--ink-muted)">
-                  {k === 'gate' ? 'gate' : 'pre-gate'}
+                  {k === 'gate' ? 'ворота' : 'передворота'}
                 </text>
               </g>
             )
@@ -207,10 +207,10 @@ export function TopView({ config, approach, trajectory = [], current, overlays =
       <g>
         <path d={`M ${takeoff.x} ${takeoff.y - 9} L ${takeoff.x + 7} ${takeoff.y + 5} L ${takeoff.x - 7} ${takeoff.y + 5} Z`} fill="none" stroke="var(--foreground)" strokeWidth={1.5} />
         <text x={takeoff.x + 9} y={takeoff.y + 14} fontSize={13} fill="var(--ink-muted)">
-          mast
+          щогла
         </text>
         <text x={land.x + 9} y={land.y + 14} fontSize={13} fill="var(--ink-muted)">
-          landing point
+          точка посадки
         </text>
       </g>
 
@@ -241,10 +241,10 @@ export function TopView({ config, approach, trajectory = [], current, overlays =
               }}
             />
             <text x={p.x + 9} y={p.y - 8} fontSize={14} fontWeight={600} fill="var(--foreground)">
-              {`WP${i + 1}`}
+              {`ШТ${i + 1}`}
             </text>
             <text x={p.x + 9} y={p.y + 4} fontSize={12.5} fill="var(--ink-muted)">
-              {`${fmt(w.altitude_m, 0)} m${w.speed_m_s < 0.3 ? ' · hover' : ''}`}
+              {`${fmt(w.altitude_m, 0)} м${w.speed_m_s < 0.3 ? ' · зависання' : ''}`}
             </text>
           </g>
         )
@@ -265,18 +265,18 @@ export function TopView({ config, approach, trajectory = [], current, overlays =
           </g>
         ) : (
           <text textAnchor="middle" y={4} fontSize={13} fill="var(--ink-muted)">
-            calm
+            штиль
           </text>
         )}
         <text textAnchor="middle" y={42} fontSize={13} fill="var(--muted-foreground)">
-          {`wind ${fmt(windSpeed, 1)} m/s`}
+          {`вітер ${fmt(windSpeed, 1)} м/с`}
         </text>
       </g>
       {/* North arrow and scale */}
       <g transform="translate(26 30)">
         <path d="M 0 -14 L 5 2 L 0 -2 L -5 2 Z" fill="var(--foreground)" />
         <text textAnchor="middle" y={14} fontSize={13} fill="var(--muted-foreground)">
-          N
+          Пн
         </text>
       </g>
       <g transform={`translate(20 ${H - 16})`}>
@@ -284,7 +284,7 @@ export function TopView({ config, approach, trajectory = [], current, overlays =
         <line x1={0} x2={0} y1={-4} y2={4} stroke="var(--foreground)" strokeWidth={1.5} />
         <line x1={step * map.scale} x2={step * map.scale} y1={-4} y2={4} stroke="var(--foreground)" strokeWidth={1.5} />
         <text x={(step * map.scale) / 2} y={-6} textAnchor="middle" fontSize={13} fill="var(--muted-foreground)">
-          {`${step} m`}
+          {`${step} м`}
         </text>
       </g>
     </svg>
@@ -336,7 +336,7 @@ export function SideView({ config, approach, trajectory = [], current, mode, hei
   }
   const la = config.environment.landing_area
   return (
-    <svg viewBox={`0 0 ${W} ${vbH}`} className="w-full rounded-md border border-border bg-surface" style={{ height }} role="img" aria-label="Side view: height above ground">
+    <svg viewBox={`0 0 ${W} ${vbH}`} className="w-full rounded-md border border-border bg-surface" style={{ height }} role="img" aria-label="Вигляд збоку: висота над землею">
       {ticks.map((a) => (
         <g key={a}>
           <line x1={pl} x2={W - pr} y1={sy(a)} y2={sy(a)} stroke="var(--grid)" />
@@ -346,7 +346,7 @@ export function SideView({ config, approach, trajectory = [], current, mode, hei
         </g>
       ))}
       <text x={10} y={pt + 2} fontSize={15} fill="var(--ink-muted)">
-        m AGL
+        м над землею
       </text>
       <rect x={pl} y={sy(0)} width={W - pl - pr} height={6} fill="var(--axis)" />
       {mode === 'final' ? (
@@ -357,11 +357,11 @@ export function SideView({ config, approach, trajectory = [], current, mode, hei
       {pts ? <polyline points={pts} fill="none" stroke="var(--series-1)" strokeWidth={2} strokeLinejoin="round" /> : null}
       <line x1={sx(landX)} x2={sx(landX)} y1={sy(0)} y2={sy(0) - 10} stroke="var(--foreground)" strokeWidth={1.5} />
       <text x={sx(landX)} y={sy(0) + 18} textAnchor="middle" fontSize={15} fill="var(--ink-muted)">
-        landing point
+        точка посадки
       </text>
       {takeoffX !== null ? (
         <text x={sx(takeoffX)} y={sy(0) + 18} textAnchor="middle" fontSize={15} fill="var(--ink-muted)">
-          mast
+          щогла
         </text>
       ) : null}
       {current ? (
@@ -373,7 +373,7 @@ export function SideView({ config, approach, trajectory = [], current, mode, hei
         </g>
       ) : null}
       <text x={W - pr} y={vbH - 6} textAnchor="end" fontSize={15} fill="var(--ink-muted)">
-        {mode === 'final' ? 'along final course (m, landing point = 0)' : mode === 'east' ? 'East (m)' : 'North (m)'}
+        {mode === 'final' ? 'уздовж посадкового курсу (м, точка посадки = 0)' : mode === 'east' ? 'Схід (м)' : 'Північ (м)'}
       </text>
     </svg>
   )

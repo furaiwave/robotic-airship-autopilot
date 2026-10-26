@@ -1,11 +1,10 @@
 # Multi-stage build: web UI (Node) + Rust API serving the UI and the REST API on :8080.
 FROM node:24-bookworm-slim AS web
 WORKDIR /src/apps/web
-RUN corepack enable
-COPY apps/web/package.json apps/web/pnpm-lock.yaml apps/web/pnpm-workspace.yaml ./
-RUN pnpm install --frozen-lockfile
+COPY apps/web/package.json apps/web/package-lock.json ./
+RUN npm ci
 COPY apps/web ./
-RUN pnpm build
+RUN npm run build
 
 FROM rust:1-bookworm AS api
 WORKDIR /src

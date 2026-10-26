@@ -46,7 +46,7 @@ export function createApiClient({ baseUrl = '', fetchImpl }: ApiClientOptions = 
         body: body === undefined ? undefined : JSON.stringify(body),
       })
     } catch (e) {
-      throw new ApiError(0, 'network', `Cannot reach the simulation backend (${e instanceof Error ? e.message : String(e)})`)
+      throw new ApiError(0, 'network', `Немає зв’язку з сервером моделювання (${e instanceof Error ? e.message : String(e)})`)
     }
     if (response.status === 204) return undefined as T
     const text = await response.text()
@@ -70,9 +70,9 @@ export function createApiClient({ baseUrl = '', fetchImpl }: ApiClientOptions = 
     try {
       response = await doFetch(`${baseUrl}/api${path}`)
     } catch (e) {
-      throw new ApiError(0, 'network', `Cannot reach the simulation backend (${e instanceof Error ? e.message : String(e)})`)
+      throw new ApiError(0, 'network', `Немає зв’язку з сервером моделювання (${e instanceof Error ? e.message : String(e)})`)
     }
-    if (!response.ok) throw new ApiError(response.status, 'http_error', `Download failed: HTTP ${response.status}`)
+    if (!response.ok) throw new ApiError(response.status, 'http_error', `Помилка завантаження: HTTP ${response.status}`)
     return response.blob()
   }
 

@@ -34,7 +34,7 @@ describe('API client', () => {
     const api = createApiClient({ fetchImpl: vi.fn(async () => Promise.reject(new TypeError('Failed to fetch'))) })
     const err = (await api.health().catch((e: unknown) => e)) as ApiError
     expect(err.code).toBe('network')
-    expect(err.message).toContain('Cannot reach the simulation backend')
+    expect(err.message).toContain('Немає зв’язку з сервером моделювання')
   })
 
   it('handles 204 and non-JSON error bodies', async () => {

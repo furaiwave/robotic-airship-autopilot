@@ -12,28 +12,70 @@ import { issuesFor, useConfigStore } from '@/stores/configStore'
 import type { AutopilotConfig, ControllerKind, PhaseClass, SimulationSettings } from '@/types/api'
 
 const LOOPS: { key: 'altitude' | 'vertical_speed' | 'heading' | 'yaw_rate' | 'airspeed'; label: string; units: string }[] = [
-  { key: 'altitude', label: 'Altitude → vertical-speed ref.', units: '1/s, 1/s², s' },
-  { key: 'vertical_speed', label: 'Vertical speed → heave force', units: 'N·s/m, N/m, N·s²/m' },
-  { key: 'heading', label: 'Heading → yaw-rate ref.', units: '1/s, 1/s², s' },
-  { key: 'yaw_rate', label: 'Yaw rate → yaw moment', units: 'N·m·s, N·m, N·m·s²' },
-  { key: 'airspeed', label: 'Airspeed → surge force', units: 'N·s/m, N/m, N·s²/m' },
+  { key: 'altitude', label: 'Висота → завдання верт. швидкості', units: '1/с, 1/с², с' },
+  { key: 'vertical_speed', label: 'Вертикальна швидкість → вертикальна сила', units: 'Н·с/м, Н/м, Н·с²/м' },
+  { key: 'heading', label: 'Курс → завдання кутової швидкості', units: '1/с, 1/с², с' },
+  { key: 'yaw_rate', label: 'Кутова швидкість рискання → момент', units: 'Н·м·с, Н·м, Н·м·с²' },
+  { key: 'airspeed', label: 'Повітряна швидкість → поздовжня сила', units: 'Н·с/м, Н/м, Н·с²/м' },
 ]
 
-const PHASE_CLASSES: PhaseClass[] = ['ground', 'takeoff', 'climb', 'cruise', 'approach', 'landing']
+const PHASE_CLASSES: { key: PhaseClass; label: string }[] = [
+  { key: 'ground', label: 'На землі' },
+  { key: 'takeoff', label: 'Зліт' },
+  { key: 'climb', label: 'Набір висоти' },
+  { key: 'cruise', label: 'Маршрут' },
+  { key: 'approach', label: 'Захід' },
+  { key: 'landing', label: 'Посадка' },
+]
 
 const STATE_MACHINE: { phase: string; loops: string; exit: string; failure: string }[] = [
-  { phase: 'Preflight', loops: '—', exit: 'all checks pass (sensors, vehicle physics, lift margin, descent authority, wind, battery, path)', failure: 'any check fails → Aborted' },
-  { phase: 'Take-off preparation', loops: 'open-loop heave ramp; yaw into wind at the mast', exit: 'mooring load ≥ release threshold, wind ≤ limit, hull ≤ 20° off the wind', failure: 'timeout → Aborted (cause reported)' },
-  { phase: 'Take-off', loops: 'vertical speed, position hold, heading', exit: 'gear height ≥ clearance and vz > 0.1 m/s', failure: 'timeout → Aborted' },
-  { phase: 'Initial climb', loops: 'vertical speed, position hold, heading', exit: 'gear height ≥ initial-climb height', failure: '—' },
-  { phase: 'Climb', loops: 'altitude (rate-limited ref.), LOS path, heading, airspeed', exit: '|h − h_target| ≤ tol and |vz| ≤ tol', failure: 'unplanned ground contact → Touchdown' },
-  { phase: 'En-route', loops: 'altitude, LOS path, heading, airspeed', exit: 'all waypoints captured', failure: 'battery critical → Approach' },
-  { phase: 'Approach', loops: 'altitude, join point / final line, heading, airspeed', exit: 'at the gate: inside corridor, altitude, track error, speed, wind', failure: 'not established at the gate → Go-around' },
-  { phase: 'Descent', loops: 'glide-path altitude + vz ff, line, decelerating speed', exit: 'low, within flare radius, slow', failure: 'cross-track, glide-path, wind, overshoot (above DH) → Go-around' },
-  { phase: 'Flare', loops: 'vertical speed (sink), position hold', exit: 'weight on gear (contact model)', failure: 'drift > 2× tolerance or wind (above DH) → Go-around' },
-  { phase: 'Touchdown', loops: 'open-loop hold-down thrust', exit: 'on ground, slow, |vz| ≤ 0.2 m/s', failure: 'bounce → Flare' },
-  { phase: 'Post-landing', loops: 'open-loop hold-down thrust', exit: 'settled for the settle time → mooring engaged', failure: 'lift-off → Flare' },
-  { phase: 'Go-around', loops: 'altitude to approach alt., straight ahead, heading, airspeed', exit: 'approach altitude reached → Approach', failure: 'attempts exhausted → Aborted' },
+  {
+    phase: 'Передпольотні перевірки',
+    loops: '—',
+    exit: 'усі перевірки пройдено (датчики, фізика апарата, запас підйомної сили, запас тяги для зниження, вітер, батарея, маршрут)',
+    failure: 'будь-яка перевірка не пройдена → Перервано',
+  },
+  {
+    phase: 'Підготовка до зльоту',
+    loops: 'розімкнене наростання вертикальної тяги; розворот проти вітру біля щогли',
+    exit: 'навантаження на швартування ≥ порогу відшвартування, вітер ≤ межі, корпус ≤ 20° від напрямку вітру',
+    failure: 'тайм-аут → Перервано (з указанням причини)',
+  },
+  { phase: 'Зліт', loops: 'вертикальна швидкість, утримання положення, курс', exit: 'висота шасі ≥ висоти відриву та vz > 0,1 м/с', failure: 'тайм-аут → Перервано' },
+  { phase: 'Початковий набір', loops: 'вертикальна швидкість, утримання положення, курс', exit: 'висота шасі ≥ висоти початкового набору', failure: '—' },
+  {
+    phase: 'Набір висоти',
+    loops: 'висота (завдання з обмеженою швидкістю), LOS-наведення, курс, повітряна швидкість',
+    exit: '|h − h_ціль| ≤ допуску та |vz| ≤ допуску',
+    failure: 'незапланований контакт із землею → Торкання',
+  },
+  { phase: 'Політ за маршрутом', loops: 'висота, LOS-наведення, курс, повітряна швидкість', exit: 'усі шляхові точки захоплено', failure: 'критичний заряд батареї → Захід на посадку' },
+  {
+    phase: 'Захід на посадку',
+    loops: 'висота, точка входу / лінія кінцевого заходу, курс, повітряна швидкість',
+    exit: 'у воротах: у коридорі за боковим відхиленням, висотою, шляховим кутом, швидкістю та вітром',
+    failure: 'не стабілізовано у воротах → Відхід на друге коло',
+  },
+  {
+    phase: 'Зниження по глісаді',
+    loops: 'висота глісади + пряма компенсація vz, лінія, зменшення швидкості',
+    exit: 'низько, у радіусі вирівнювання, повільно',
+    failure: 'бокове відхилення, відхилення від глісади, вітер, проліт точки (вище ВПР) → Відхід на друге коло',
+  },
+  {
+    phase: 'Вирівнювання',
+    loops: 'вертикальна швидкість (зниження), утримання положення',
+    exit: 'навантаження на шасі (модель контакту)',
+    failure: 'зміщення > 2× допуску або вітер (вище ВПР) → Відхід на друге коло',
+  },
+  { phase: 'Торкання', loops: 'розімкнена притискна тяга', exit: 'на землі, повільно, |vz| ≤ 0,2 м/с', failure: 'відскок → Вирівнювання' },
+  { phase: 'Стабілізація після посадки', loops: 'розімкнена притискна тяга', exit: 'стабільно протягом часу стабілізації → швартування', failure: 'відрив → Вирівнювання' },
+  {
+    phase: 'Відхід на друге коло',
+    loops: 'висота до висоти заходу, прямо за курсом, курс, повітряна швидкість',
+    exit: 'досягнуто висоти заходу → Захід на посадку',
+    failure: 'вичерпано спроби → Перервано',
+  },
 ]
 
 export function AutopilotPage() {
@@ -62,15 +104,15 @@ export function AutopilotPage() {
   return (
     <div>
       <PageHeader
-        title="Autopilot configuration"
-        description="Both controllers share the same cascaded loop structure, feed-forward terms, wind-triangle guidance and control allocation; they differ only in how the loop gains are obtained."
+        title="Конфігурація автопілота"
+        description="Обидва регулятори мають однакову каскадну структуру контурів, пряму компенсацію, наведення за трикутником швидкостей і розподіл керування; вони відрізняються лише способом отримання коефіцієнтів контурів."
       />
       <Tabs defaultValue="controller">
         <TabsList>
-          <TabsTrigger value="controller">Controller</TabsTrigger>
-          <TabsTrigger value="thresholds">Phases & thresholds</TabsTrigger>
-          <TabsTrigger value="statemachine">State machine</TabsTrigger>
-          <TabsTrigger value="numerics">Numerics</TabsTrigger>
+          <TabsTrigger value="controller">Регулятор</TabsTrigger>
+          <TabsTrigger value="thresholds">Фази та пороги</TabsTrigger>
+          <TabsTrigger value="statemachine">Автомат станів</TabsTrigger>
+          <TabsTrigger value="numerics">Чисельні параметри</TabsTrigger>
         </TabsList>
 
         <TabsContent value="controller" className="space-y-3">
@@ -83,13 +125,13 @@ export function AutopilotPage() {
                 className={cn('rounded-lg border bg-surface p-3 text-left transition-colors', ctl.kind === k ? 'border-primary ring-1 ring-primary' : 'border-border hover:border-border-strong')}
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold">{k === 'cascaded_pid' ? 'Controller A — cascaded PID' : 'Controller B — gain-scheduled PID'}</span>
-                  {ctl.kind === k ? <Badge variant="info">selected</Badge> : null}
+                  <span className="text-sm font-semibold">{k === 'cascaded_pid' ? 'Регулятор A — каскадний ПІД' : 'Регулятор B — ПІД з плануванням коефіцієнтів'}</span>
+                  {ctl.kind === k ? <Badge variant="info">вибрано</Badge> : null}
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
                   {k === 'cascaded_pid'
-                    ? 'Fixed gains for all phases and speeds. Defaults come from pole placement at one nominal cruise point (4 m/s airspeed, cruise bandwidths) and are then held constant.'
-                    : 'Gains recomputed every control step: Kp = max(2ζωM − d(σ), f·2ζωM), Ki = ω²M, where d(σ) is the linearised aerodynamic damping at the measured airspeed / vertical speed / yaw rate, ω comes from the phase table and the position gain is scheduled on distance to the landing point.'}
+                    ? 'Сталі коефіцієнти для всіх фаз і швидкостей. Типові значення отримано розміщенням полюсів в одній номінальній крейсерській точці (повітряна швидкість 4 м/с, крейсерські смуги пропускання) і далі не змінюються.'
+                    : 'Коефіцієнти перераховуються на кожному кроці керування: Kp = max(2ζωM − d(σ), f·2ζωM), Ki = ω²M, де d(σ) — лінеаризоване аеродинамічне демпфування за виміряними повітряною швидкістю / вертикальною швидкістю / кутовою швидкістю рискання, ω береться з таблиці фаз, а коефіцієнт за положенням залежить від відстані до точки посадки.'}
                 </p>
               </button>
             ))}
@@ -99,15 +141,15 @@ export function AutopilotPage() {
             <Card>
               <CardHeader>
                 <div>
-                  <CardTitle>Controller A gains</CardTitle>
-                  <CardDescription>PID with anti-windup (conditional integration), filtered derivative on measurement, saturation and rate limits.</CardDescription>
+                  <CardTitle>Коефіцієнти регулятора A</CardTitle>
+                  <CardDescription>ПІД з антинасиченням інтегратора (умовне інтегрування), фільтрованою похідною за вимірюванням, обмеженням виходу та швидкості його зміни.</CardDescription>
                 </div>
               </CardHeader>
               <CardContent className="p-0">
                 <Table>
                   <THead>
                     <Tr>
-                      <Th>Loop</Th>
+                      <Th>Контур</Th>
                       <Th>Kp</Th>
                       <Th>Ki</Th>
                       <Th>Kd</Th>
@@ -126,8 +168,8 @@ export function AutopilotPage() {
                       </Tr>
                     ))}
                     <Tr>
-                      <Td>Position → ground velocity [1/s]</Td>
-                      <Td>{gain('controller.cascaded_pid.position_gain_1_s', ctl.cascaded_pid.position_gain_1_s, 'Position gain')}</Td>
+                      <Td>Положення → шляхова швидкість [1/с]</Td>
+                      <Td>{gain('controller.cascaded_pid.position_gain_1_s', ctl.cascaded_pid.position_gain_1_s, 'Коефіцієнт за положенням')}</Td>
                       <Td />
                       <Td />
                     </Tr>
@@ -139,26 +181,26 @@ export function AutopilotPage() {
             <Card>
               <CardHeader>
                 <div>
-                  <CardTitle>Controller B schedule</CardTitle>
-                  <CardDescription>Closed-loop bandwidth ω [rad/s] per phase class; outer loops use ω / n_outer.</CardDescription>
+                  <CardTitle>Планування коефіцієнтів регулятора B</CardTitle>
+                  <CardDescription>Смуга пропускання замкненого контуру ω [рад/с] для кожного класу фаз; зовнішні контури використовують ω / n_зовн.</CardDescription>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3 p-0">
                 <Table>
                   <THead>
                     <Tr>
-                      <Th>Phase class</Th>
-                      <Th>ω vertical</Th>
-                      <Th>ω yaw</Th>
-                      <Th>ω speed</Th>
+                      <Th>Клас фаз</Th>
+                      <Th>ω вертикаль</Th>
+                      <Th>ω рискання</Th>
+                      <Th>ω швидкість</Th>
                     </Tr>
                   </THead>
                   <TBody>
                     {PHASE_CLASSES.map((p) => (
-                      <Tr key={p}>
-                        <Td className="capitalize">{p}</Td>
+                      <Tr key={p.key}>
+                        <Td>{p.label}</Td>
                         {(['vertical_rad_s', 'yaw_rad_s', 'speed_rad_s'] as const).map((b) => (
-                          <Td key={b}>{gain(`controller.gain_scheduled.bandwidths.${p}.${b}`, ctl.gain_scheduled.bandwidths[p][b], `${p} ${b}`)}</Td>
+                          <Td key={b}>{gain(`controller.gain_scheduled.bandwidths.${p.key}.${b}`, ctl.gain_scheduled.bandwidths[p.key][b], `${p.label} ${b}`)}</Td>
                         ))}
                       </Tr>
                     ))}
@@ -167,12 +209,12 @@ export function AutopilotPage() {
                 <div className="grid grid-cols-2 gap-3 px-4 pb-4">
                   {(
                     [
-                      ['damping_ratio', 'Damping ratio ζ'],
-                      ['outer_loop_ratio', 'Outer-loop ratio n'],
-                      ['min_proportional_fraction', 'Min Kp fraction f'],
-                      ['position_gain_far_1_s', 'Position gain far [1/s]'],
-                      ['position_gain_near_1_s', 'Position gain near [1/s]'],
-                      ['position_schedule_distance_m', 'Schedule distance [m]'],
+                      ['damping_ratio', 'Коефіцієнт демпфування ζ'],
+                      ['outer_loop_ratio', 'Співвідношення зовн. контуру n'],
+                      ['min_proportional_fraction', 'Мін. частка Kp f'],
+                      ['position_gain_far_1_s', 'Коеф. за положенням, далеко [1/с]'],
+                      ['position_gain_near_1_s', 'Коеф. за положенням, близько [1/с]'],
+                      ['position_schedule_distance_m', 'Відстань планування [м]'],
                     ] as const
                   ).map(([k, label]) => (
                     <div key={k} className="space-y-1">
@@ -186,16 +228,16 @@ export function AutopilotPage() {
           </div>
           <Card>
             <CardHeader>
-              <CardTitle>Shared settings</CardTitle>
+              <CardTitle>Спільні налаштування</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-3 sm:grid-cols-3">
               {(
                 [
-                  ['derivative_filter_tau_s', 'Derivative filter τ [s]'],
-                  ['heave_rate_limit_n_s', 'Heave rate limit [N/s]'],
-                  ['surge_rate_limit_n_s', 'Surge rate limit [N/s]'],
-                  ['yaw_moment_rate_limit_nm_s', 'Yaw-moment rate limit [N·m/s]'],
-                  ['max_reverse_airspeed_m_s', 'Max reverse airspeed [m/s]'],
+                  ['derivative_filter_tau_s', 'Стала фільтра похідної τ [с]'],
+                  ['heave_rate_limit_n_s', 'Обмеження швидкості верт. сили [Н/с]'],
+                  ['surge_rate_limit_n_s', 'Обмеження швидкості поздовжньої сили [Н/с]'],
+                  ['yaw_moment_rate_limit_nm_s', 'Обмеження швидкості моменту рискання [Н·м/с]'],
+                  ['max_reverse_airspeed_m_s', 'Макс. швидкість заднього ходу [м/с]'],
                 ] as const
               ).map(([k, label]) => (
                 <div key={k} className="space-y-1">
@@ -204,8 +246,8 @@ export function AutopilotPage() {
                 </div>
               ))}
               <label className="flex items-center gap-2 self-end text-xs text-muted-foreground">
-                <Switch checked={ctl.common.drag_feedforward} onCheckedChange={(v) => update('controller.common.drag_feedforward', v)} aria-label="Drag feed-forward" />
-                Drag and static-heaviness feed-forward
+                <Switch checked={ctl.common.drag_feedforward} onCheckedChange={(v) => update('controller.common.drag_feedforward', v)} aria-label="Пряма компенсація опору" />
+                Пряма компенсація опору та статичної ваги
               </label>
             </CardContent>
           </Card>
@@ -219,10 +261,10 @@ export function AutopilotPage() {
           <Card>
             <CardHeader>
               <div>
-                <CardTitle>Explicit flight-phase state machine</CardTitle>
+                <CardTitle>Явний автомат станів фаз польоту</CardTitle>
                 <CardDescription>
-                  Every transition depends on measured state, targets and safety constraints; timers only bound failure handling. Each transition is logged with its time and the measured values that
-                  satisfied the condition.
+                  Кожен перехід залежить від виміряного стану, цільових значень і обмежень безпеки; таймери лише обмежують обробку відмов. Кожен перехід записується з часом і виміряними
+                  значеннями, що задовольнили умову.
                 </CardDescription>
               </div>
             </CardHeader>
@@ -230,10 +272,10 @@ export function AutopilotPage() {
               <Table>
                 <THead>
                   <Tr>
-                    <Th>Phase</Th>
-                    <Th>Active loops</Th>
-                    <Th>Nominal exit condition</Th>
-                    <Th>Failure / abort handling</Th>
+                    <Th>Фаза</Th>
+                    <Th>Активні контури</Th>
+                    <Th>Штатна умова виходу</Th>
+                    <Th>Обробка відмов / переривання</Th>
                   </Tr>
                 </THead>
                 <TBody>
@@ -247,6 +289,7 @@ export function AutopilotPage() {
                   ))}
                 </TBody>
               </Table>
+              <p className="px-4 py-2 text-[11px] text-subtle-foreground">ВПР — висота прийняття рішення; LOS — наведення за лінією візування.</p>
             </CardContent>
           </Card>
         </TabsContent>
@@ -254,7 +297,13 @@ export function AutopilotPage() {
         <TabsContent value="numerics">
           <SectionForm
             value={config.simulation}
-            groups={[{ title: 'Fixed-step integration', description: 'Classical RK4 at dt; the controller runs every 1/control-rate seconds; the replay speed never changes dt.', fields: SIMULATION_FIELDS }]}
+            groups={[
+              {
+                title: 'Інтегрування зі сталим кроком',
+                description: 'Класичний метод Рунге–Кутти 4-го порядку з кроком dt; регулятор працює кожні 1/частоту керування секунд; швидкість відтворення ніколи не змінює dt.',
+                fields: SIMULATION_FIELDS,
+              },
+            ]}
             schema={simulationSchema}
             onChange={onSim}
             issuePrefix="simulation"

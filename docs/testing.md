@@ -40,8 +40,8 @@
 ```bash
 cargo test --workspace --release        # Rust unit, integration and API tests
 cargo clippy --workspace --all-targets -- -D warnings
-pnpm --dir apps/web test                # Vitest
-pnpm --dir apps/web typecheck           # tsc --noEmit (strict)
+npm --prefix apps/web test              # Vitest
+npm --prefix apps/web run typecheck     # tsc --noEmit (strict)
 node scripts/e2e.mjs                    # builds and starts the API, runs the e2e test
 cargo bench -p control-algorithms -p simulation-engine   # Criterion benchmarks
 ```

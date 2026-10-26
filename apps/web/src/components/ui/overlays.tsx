@@ -136,7 +136,7 @@ export function Dialog({
           <DialogPrimitive.Title className="text-sm font-semibold">{title}</DialogPrimitive.Title>
           {description ? <DialogPrimitive.Description className="mt-1 text-xs text-muted-foreground">{description}</DialogPrimitive.Description> : null}
           <div className="mt-4">{children}</div>
-          <DialogPrimitive.Close className="absolute top-3 right-3 rounded p-1 text-muted-foreground hover:bg-accent" aria-label="Close">
+          <DialogPrimitive.Close className="absolute top-3 right-3 rounded p-1 text-muted-foreground hover:bg-accent" aria-label="Закрити">
             <X className="size-4" />
           </DialogPrimitive.Close>
         </DialogPrimitive.Content>

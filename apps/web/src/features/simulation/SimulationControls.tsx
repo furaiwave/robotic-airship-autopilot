@@ -9,13 +9,13 @@ import { useConfigStore } from '@/stores/configStore'
 import { useSimulationStore } from '@/stores/simulationStore'
 
 const SPEEDS = [
-  { value: '1', label: '1× real time' },
+  { value: '1', label: '1× (реальний час)' },
   { value: '2', label: '2×' },
   { value: '5', label: '5×' },
   { value: '10', label: '10×' },
   { value: '25', label: '25×' },
   { value: '100', label: '100×' },
-  { value: '0', label: 'As fast as possible' },
+  { value: '0', label: 'Максимально швидко' },
 ]
 
 /** Lifecycle controls. Speed changes how many fixed steps run per wall-clock tick, never dt. */
@@ -42,30 +42,30 @@ export function SimulationControls() {
     <div className="space-y-2">
       {sim.error ? <ErrorBanner message={sim.error} details={sim.issues} onDismiss={sim.clearError} /> : null}
       <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2">
-        <Button size="sm" onClick={() => void loadAndStart()} disabled={!config || configInvalid || sim.busy} title={configInvalid ? 'Fix configuration errors first' : undefined}>
-          <Upload /> Load config & start
+        <Button size="sm" onClick={() => void loadAndStart()} disabled={!config || configInvalid || sim.busy} title={configInvalid ? 'Спершу виправте помилки конфігурації' : undefined}>
+          <Upload /> Завантажити й запустити
         </Button>
         <div className="mx-1 h-5 w-px bg-border" />
         <Button size="sm" variant="secondary" onClick={() => void sim.start()} disabled={!s || s.state !== 'created' || sim.busy}>
-          <Play /> Start
+          <Play /> Старт
         </Button>
         {paused ? (
           <Button size="sm" variant="secondary" onClick={() => void sim.resume()} disabled={sim.busy}>
-            <Play /> Resume
+            <Play /> Продовжити
           </Button>
         ) : (
           <Button size="sm" variant="secondary" onClick={() => void sim.pause()} disabled={!running || sim.busy}>
-            <Pause /> Pause
+            <Pause /> Пауза
           </Button>
         )}
         <Button size="sm" variant="secondary" onClick={() => void sim.stop()} disabled={!s || finished || sim.busy}>
-          <Square /> Stop
+          <Square /> Стоп
         </Button>
         <Button size="sm" variant="secondary" onClick={() => void sim.reset()} disabled={!s || sim.busy}>
-          <RotateCcw /> Reset
+          <RotateCcw /> Скинути
         </Button>
         <div className="w-44">
-          <Select ariaLabel="Simulation speed" value={String(sim.speed)} onValueChange={(v) => void sim.setSpeed(Number(v))} options={SPEEDS} />
+          <Select ariaLabel="Швидкість моделювання" value={String(sim.speed)} onValueChange={(v) => void sim.setSpeed(Number(v))} options={SPEEDS} />
         </div>
         <div className="ml-auto flex items-center gap-3 text-xs">
           {s ? (
@@ -78,7 +78,7 @@ export function SimulationControls() {
               </div>
             </>
           ) : (
-            <span className="text-muted-foreground">No simulation loaded</span>
+            <span className="text-muted-foreground">Моделювання не завантажено</span>
           )}
           <Button size="sm" variant="ghost" onClick={() => void sim.exportCsv()} disabled={!s || s.telemetry_count === 0}>
             <Download /> CSV
@@ -88,7 +88,7 @@ export function SimulationControls() {
           </Button>
         </div>
       </div>
-      {s?.finish_message ? <p className="text-xs text-muted-foreground">Run ended: {s.finish_message}</p> : null}
+      {s?.finish_message ? <p className="text-xs text-muted-foreground">Прогін завершено: {s.finish_message}</p> : null}
     </div>
   )
 }

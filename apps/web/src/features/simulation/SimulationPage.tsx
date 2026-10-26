@@ -7,6 +7,7 @@ import { TimeSeriesChart } from '@/components/common/TimeSeriesChart'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/overlays'
 import { breakAngleWraps, fmt, PHASE_LABEL } from '@/lib/format'
+import { guidanceModeUk } from '@/lib/i18n'
 import { useConfigStore } from '@/stores/configStore'
 import { useSimulationStore } from '@/stores/simulationStore'
 import type { TelemetrySample } from '@/types/api'
@@ -41,23 +42,23 @@ export function SimulationPage() {
   return (
     <div className="space-y-3">
       <PageHeader
-        title="Simulation workspace"
-        description="The Rust engine integrates the dynamics at a fixed time step; this page renders telemetry polled from the engine at 4 Hz, independent of the physics rate."
+        title="Робоча зона моделювання"
+        description="Rust-рушій інтегрує динаміку зі сталим кроком; ця сторінка відображає телеметрію, яку опитує з рушія з частотою 4 Гц незалежно від частоти фізичного моделювання."
       />
       <SimulationControls />
       {!session ? (
-        <EmptyState title="No simulation loaded" icon={<Activity />}>
-          Load the current configuration to create a simulation session in the Rust engine. The configuration is validated server-side before the session is created.
+        <EmptyState title="Моделювання не завантажено" icon={<Activity />}>
+          Завантажте поточну конфігурацію, щоб створити сеанс моделювання в Rust-рушії. Перед створенням сеансу конфігурація перевіряється на сервері.
         </EmptyState>
       ) : (
         <>
           <div className="grid gap-3 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
             <Card>
               <CardHeader>
-                <CardTitle>Top-down trajectory</CardTitle>
+                <CardTitle>Траєкторія (вигляд згори)</CardTitle>
                 <div className="flex items-center gap-2">
                   <PhaseBadge phase={session.phase} />
-                  <span className="max-w-72 truncate text-xs text-muted-foreground">{session.guidance_mode}</span>
+                  <span className="max-w-72 truncate text-xs text-muted-foreground">{guidanceModeUk(session.guidance_mode)}</span>
                 </div>
               </CardHeader>
               <CardContent>
@@ -67,76 +68,76 @@ export function SimulationPage() {
             <div className="space-y-3">
               <Card>
                 <CardHeader>
-                  <CardTitle>Side view</CardTitle>
+                  <CardTitle>Вигляд збоку</CardTitle>
                   <Tabs value={mode} onValueChange={(v) => setMode(v as typeof mode)}>
                     <TabsList>
-                      <TabsTrigger value="final">Final course</TabsTrigger>
-                      <TabsTrigger value="east">East</TabsTrigger>
-                      <TabsTrigger value="north">North</TabsTrigger>
+                      <TabsTrigger value="final">Посадковий курс</TabsTrigger>
+                      <TabsTrigger value="east">Схід</TabsTrigger>
+                      <TabsTrigger value="north">Північ</TabsTrigger>
                     </TabsList>
                   </Tabs>
                 </CardHeader>
                 <CardContent>
                   <SideView config={view} approach={validation?.approach} trajectory={telemetry} current={current} mode={mode} height={200} />
-                  <p className="mt-1.5 text-[11px] text-muted-foreground">Blue: simulated gear height. Dashed grey: altitude reference. Dashed violet: glide path.</p>
+                  <p className="mt-1.5 text-[11px] text-muted-foreground">Синій: модельована висота шасі. Сірий пунктир: завдання висоти. Фіолетовий пунктир: глісада.</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle>Phase transitions</CardTitle>
+                  <CardTitle>Переходи між фазами</CardTitle>
                 </CardHeader>
                 <CardContent className="max-h-56 space-y-1.5 overflow-y-auto text-xs">
                   {session.last_transition ? (
                     <TransitionList />
                   ) : (
-                    <p className="text-muted-foreground">No transitions yet.</p>
+                    <p className="text-muted-foreground">Переходів ще немає.</p>
                   )}
                 </CardContent>
               </Card>
             </div>
           </div>
           <div className="grid gap-3 lg:grid-cols-2 2xl:grid-cols-3">
-            <ChartCard title="Altitude above ground [m]">
-              <TimeSeriesChart data={data} unit="m" markers={markers} series={[
-                { key: 'altitude_agl_m', label: 'Simulated', color: 'var(--series-1)' },
-                { key: 'ref_altitude_agl_m', label: 'Reference', color: 'var(--ink-muted)', dashed: true },
+            <ChartCard title="Висота над землею [м]">
+              <TimeSeriesChart data={data} unit="м" markers={markers} series={[
+                { key: 'altitude_agl_m', label: 'Модель', color: 'var(--series-1)' },
+                { key: 'ref_altitude_agl_m', label: 'Завдання', color: 'var(--ink-muted)', dashed: true },
               ]} />
             </ChartCard>
-            <ChartCard title="Vertical speed [m/s]">
-              <TimeSeriesChart data={data} unit="m/s" series={[
-                { key: 'vz_m_s', label: 'Simulated', color: 'var(--series-1)' },
-                { key: 'ref_vz_m_s', label: 'Reference', color: 'var(--ink-muted)', dashed: true },
+            <ChartCard title="Вертикальна швидкість [м/с]">
+              <TimeSeriesChart data={data} unit="м/с" series={[
+                { key: 'vz_m_s', label: 'Модель', color: 'var(--series-1)' },
+                { key: 'ref_vz_m_s', label: 'Завдання', color: 'var(--ink-muted)', dashed: true },
               ]} />
             </ChartCard>
-            <ChartCard title="Heading [deg]">
-              <TimeSeriesChart data={headingData} unit="deg" digits={0} yDomain={[0, 360]} series={[
-                { key: 'heading_deg', label: 'Simulated', color: 'var(--series-1)' },
-                { key: 'ref_heading_deg', label: 'Reference', color: 'var(--ink-muted)', dashed: true },
+            <ChartCard title="Курс [°]">
+              <TimeSeriesChart data={headingData} unit="°" digits={0} yDomain={[0, 360]} series={[
+                { key: 'heading_deg', label: 'Модель', color: 'var(--series-1)' },
+                { key: 'ref_heading_deg', label: 'Завдання', color: 'var(--ink-muted)', dashed: true },
               ]} />
             </ChartCard>
-            <ChartCard title="Ground speed and airspeed [m/s]">
-              <TimeSeriesChart data={data} unit="m/s" series={[
-                { key: 'ground_speed_m_s', label: 'Ground speed', color: 'var(--series-1)' },
-                { key: 'airspeed_m_s', label: 'Airspeed', color: 'var(--series-3)' },
-                { key: 'ref_airspeed_m_s', label: 'Airspeed ref.', color: 'var(--ink-muted)', dashed: true },
+            <ChartCard title="Шляхова та повітряна швидкість [м/с]">
+              <TimeSeriesChart data={data} unit="м/с" series={[
+                { key: 'ground_speed_m_s', label: 'Шляхова', color: 'var(--series-1)' },
+                { key: 'airspeed_m_s', label: 'Повітряна', color: 'var(--series-3)' },
+                { key: 'ref_airspeed_m_s', label: 'Завдання повітряної', color: 'var(--ink-muted)', dashed: true },
               ]} />
             </ChartCard>
-            <ChartCard title="Thrust commands [N]">
-              <TimeSeriesChart data={data} unit="N" series={[
-                { key: 'thrust_heave_n', label: 'Heave', color: 'var(--series-2)' },
-                { key: 'thrust_left_n', label: 'Port main', color: 'var(--series-1)' },
-                { key: 'thrust_right_n', label: 'Starboard main', color: 'var(--series-3)' },
+            <ChartCard title="Тяга рушіїв [Н]">
+              <TimeSeriesChart data={data} unit="Н" series={[
+                { key: 'thrust_heave_n', label: 'Вертикальний', color: 'var(--series-2)' },
+                { key: 'thrust_left_n', label: 'Лівий маршовий', color: 'var(--series-1)' },
+                { key: 'thrust_right_n', label: 'Правий маршовий', color: 'var(--series-3)' },
               ]} />
             </ChartCard>
-            <ChartCard title="Wind at the vehicle [m/s]">
-              <TimeSeriesChart data={data} unit="m/s" series={[
-                { key: 'wind_speed_m_s', label: 'Horizontal', color: 'var(--series-1)' },
-                { key: 'wind_z_m_s', label: 'Vertical', color: 'var(--series-2)' },
+            <ChartCard title="Вітер у точці апарата [м/с]">
+              <TimeSeriesChart data={data} unit="м/с" series={[
+                { key: 'wind_speed_m_s', label: 'Горизонтальний', color: 'var(--series-1)' },
+                { key: 'wind_z_m_s', label: 'Вертикальний', color: 'var(--series-2)' },
               ]} />
             </ChartCard>
           </div>
           <RecentEvents />
-          <p className="text-[11px] text-subtle-foreground">Simulated data. Pitch {fmt(current?.pitch_deg, 1)}°, roll {fmt(current?.roll_deg, 1)}° at t = {fmt(current?.t_s, 1)} s.</p>
+          <p className="text-[11px] text-subtle-foreground">Змодельовані дані. Тангаж {fmt(current?.pitch_deg, 1)}°, крен {fmt(current?.roll_deg, 1)}° при t = {fmt(current?.t_s, 1)} с.</p>
         </>
       )}
     </div>
@@ -163,7 +164,7 @@ function TransitionList() {
       {[...list].reverse().map((t) => (
         <div key={`${t.time_s}-${t.to}`} className="border-l-2 border-border-strong pl-2">
           <div className="flex items-center gap-2">
-            <span className="tabular text-muted-foreground">{fmt(t.time_s, 1)} s</span>
+            <span className="tabular text-muted-foreground">{fmt(t.time_s, 1)} с</span>
             <span className="font-medium">
               {PHASE_LABEL[t.from]} → {PHASE_LABEL[t.to]}
             </span>
@@ -171,7 +172,7 @@ function TransitionList() {
           <div className="text-muted-foreground">{t.reason}</div>
         </div>
       ))}
-      {!results ? <p className="text-[11px] text-subtle-foreground">Full transition log available when the run ends (Results page).</p> : null}
+      {!results ? <p className="text-[11px] text-subtle-foreground">Повний журнал переходів доступний після завершення прогону (сторінка «Результати»).</p> : null}
     </>
   )
 }
@@ -183,13 +184,13 @@ function RecentEvents() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Recent safety events</CardTitle>
+        <CardTitle>Останні події безпеки</CardTitle>
       </CardHeader>
       <CardContent className="space-y-1.5 text-xs">
         {events.map((e) => (
           <div key={`${e.time_s}-${e.constraint}-${e.severity}`} className="flex items-start gap-2">
             <SeverityBadge severity={e.severity} />
-            <span className="tabular text-muted-foreground">{fmt(e.time_s, 1)} s</span>
+            <span className="tabular text-muted-foreground">{fmt(e.time_s, 1)} с</span>
             <span>{e.message}</span>
           </div>
         ))}

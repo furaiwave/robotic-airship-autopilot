@@ -1,3 +1,4 @@
+import { DISCLAIMER_UK, metricUk, runLabelUk } from '@/lib/i18n'
 import type { ComparisonReport, Metric, TelemetrySample } from '@/types/api'
 
 function csvCell(v: unknown): string {
@@ -21,14 +22,15 @@ export function telemetryToCsv(samples: TelemetrySample[]): string {
 /** Metric-by-run comparison table as CSV (one row per metric). */
 export function comparisonMetricsToCsv(report: ComparisonReport): string {
   const runs = report.runs
-  const header = ['metric', 'unit', ...runs.map((r) => r.label), 'definition']
+  const header = ['показник', 'одиниця', ...runs.map((r) => runLabelUk(r.label)), 'визначення']
   const first = runs[0]
   if (!first) return `${header.join(',')}\n`
-  const rows = first.results.metrics.map((m) => {
+  const rows = first.results.metrics.map((raw) => {
+    const m = metricUk(raw)
     const values = runs.map((r) => r.results.metrics.find((x) => x.key === m.key)?.value ?? null)
     return [m.label, m.unit, ...values, m.definition].map(csvCell).join(',')
   })
-  return `# ${report.disclaimer}\n${[header.join(','), ...rows].join('\n')}\n`
+  return `# ${DISCLAIMER_UK}\n${[header.join(','), ...rows].join('\n')}\n`
 }
 
 export function metricValue(metrics: Metric[], key: string): number | null {
